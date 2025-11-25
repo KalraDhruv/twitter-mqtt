@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Twitter Subscriber</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.js"></script>
+    <script src="./js/sub.js"></script>
+    <script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js"></script>
+    <style>
+    #snowflakes-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh; 
+        z-index: -10; 
+        pointer-events: none; 
+    }
+</style>
+</head>
+<body>
+    <div id="snowflakes-container"></div>
+    <script>
+        var snowflakes = new Snowflakes({
+            color: '#ffffff', 
+            container: document.querySelector('#snowflakes-container'), 
+            count: 150, 
+            minOpacity: 0.5, 
+            maxOpacity: 0.95, 
+            minSize: 15, 
+            maxSize: 35, 
+            rotation: true, 
+            speed: 0.65, 
+            wind: false, 
+            width: 500, 
+            height: 1500, 
+            zIndex: 3, 
+            autoResize: true 
+        });
+    </script>
+    <nav class="navbar navbar-expand-lg card ">
+        <div class="container-fluid ">
+		    <h2> <span style="font-size: 1.5rem;">📡</span> MQTT Twitter Subscriber </h2>
+        </div>
+    </nav>
+    
+    <div class="container-fluid">
+        <div id="status" class="status-box alert alert-warning">
+            <strong>●</strong> Connecting to MQTT broker...
+        </div>
+        
+        <div class="row">
+            <!-- Subscription Manager -->
+            <div class="col-12 col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">📋 Topic Subscriptions</h5>
+                        
+                        <div class="input-group mb-3">
+                            <input 
+                                type="text" 
+                                id="newTopic" 
+                                class="form-control" 
+                                placeholder="Enter topic"
+                                onkeypress="if(event.key==='Enter') subscribeToTopic()"
+                            >
+                            <button class="btn btn-primary" onclick="subscribeToTopic()">
+                                ➕ Subscribe
+                            </button>
+                        </div>
+                        
+                        <hr style="border-color: rgba(255,255,255,0.1);">
+                        
+                        <div id="subscriptionList" class="scroll-container">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <p>No active subscriptions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Message Feed -->
+            <div class="col-12 col-lg-8 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">📨 Message Feed</h5>
+                            <div>
+                                <span class="badge badge-success" id="messageCount">0 messages</span>
+                                <button class="btn btn-sm btn-danger ms-2" onclick="clearMessages()">
+                                    🗑️ Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="messageList" class="scroll-container">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💬</div>
+                                <p>No messages received yet</p>
+                                <small>Subscribe to topics to start receiving messages</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="row">
+            <div class="col-12 col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Active Subscriptions</h6>
+                        <h2 id="subCount">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Messages Received</h6>
+                        <h2 id="msgCount">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Last Topic</h6>
+                        <h6 id="lastTopic">-</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Connection Status</h6>
+                        <span id="connStatus" class="badge badge-warning">Connecting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    </body>
+</html>
